@@ -22,8 +22,9 @@ def do_login(data):
                                 user='otserver',
                                 password='otserver')
 
-        sql_select_Query = "SELECT id, premdays, lastday FROM accounts WHERE name = '" + data['accountname'] + "'"
-
+        
+        sql_select_Query = "SELECT id, premdays, lastday FROM accounts WHERE name = '" + data['email'] + "'"
+        
         print("Loading account information!")
         cursor = connection.cursor()
         cursor.execute(sql_select_Query)
@@ -35,7 +36,7 @@ def do_login(data):
         account_lastday = row[2]
 
         session = {
-            'sessionkey': data['accountname'] + '\n' + data['password'],
+            'sessionkey': data['email'] + '\n' + data['password'],
             'lastlogintime': 0,
             'ispremium': True if account_premdays > 0 else False,
             'premiumuntil': 0 if account_premdays == 0 else int(time.time()) + (account_premdays * 86400),
