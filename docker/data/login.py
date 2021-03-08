@@ -25,6 +25,7 @@ def do_login(data):
         sql_select_Query = "SELECT id, premdays, lastday FROM accounts WHERE name = '" + data['accountname'] + "'"
 
         print("Loading account information!")
+		print(data)
         cursor = connection.cursor()
         cursor.execute(sql_select_Query)
         records = cursor.fetchall()
