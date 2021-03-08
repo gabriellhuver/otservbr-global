@@ -9,5 +9,5 @@ rm myaac.zip myaac-master -rf
 wget https://github.com/opentibiabr/myaac-tibia12-login/archive/develop.zip -O myaac-otbr-plugin.zip
 unzip -o myaac-otbr-plugin.zip -d .
 
-cp -r myaac-tibia12-login-master/* ./web
+cp -r myaac-tibia12-login-develop/* ./web
 rm -rf myaac-otbr-plugin.zip myaac-tibia12-login-master
