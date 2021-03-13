@@ -8,6 +8,7 @@ This is python script to simulate the login functions used by the Tibia client +
 from flask import Flask
 from flask import jsonify
 from flask import request
+import hashlib
 import mysql.connector as mariadb
 from mysql.connector import Error
 import time
@@ -22,21 +23,33 @@ def do_login(data):
                                 user='otserver',
                                 password='otserver')
 
+        app.logger.info(data)
         
-        sql_select_Query = "SELECT id, premdays, lastday FROM accounts WHERE name = '" + data['email'] + "'"
+        hash_object = hashlib.sha1(str(data['password']).encode('utf-8'))
+        pbHash = hash_object.hexdigest()
+
+        sql_select_Query = "SELECT id, premdays, lastday, email FROM accounts WHERE name = '" + data['email'] + "' and password = '"+pbHash+"'"
         
-        print("Loading account information!")
         cursor = connection.cursor()
         cursor.execute(sql_select_Query)
         records = cursor.fetchall()
-        for row in records:
-            print("Id = ", row[0])
-        account_id = row[0]
-        account_premdays = row[1]
-        account_lastday = row[2]
 
+
+        account_id = -1
+        account_premdays = -1
+        account_lastday = -1
+        
+        email = ''
+
+        for row in records:    
+            print("Id = ", row[0])
+            account_id = row[0]
+            account_premdays = row[1]
+            account_lastday = row[2]
+            email = row[3]
+        
         session = {
-            'sessionkey': data['email'] + '\n' + data['password'],
+            'sessionkey': email + '\n' + data['password'],
             'lastlogintime': 0,
             'ispremium': True if account_premdays > 0 else False,
             'premiumuntil': 0 if account_premdays == 0 else int(time.time()) + (account_premdays * 86400),
@@ -49,6 +62,7 @@ def do_login(data):
             'tournamentticketpurchasestate': 0,
             'emailcoderequest': False
         };
+        
         print(session)
 
         sql_select_Query = "SELECT name, level, sex, vocation, looktype, lookhead, lookbody, looklegs, lookfeet, lookaddons, lastlogin from players where account_id = '" + str(account_id) + "'"
@@ -205,7 +219,10 @@ def news(data):
 def action():
 
     data = request.get_json()
+
     print(data)
+
+    app.logger.info(request.get_json())
 
     if(data['type'] == 'cacheinfo'):
         return jsonify({
